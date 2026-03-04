@@ -14,12 +14,23 @@ async def summarize_text(text: str) -> str:
         messages=[
             {
                 "role": "user",
-                "content": f"Summarize the following text in 2-3 sentences:\n\n{text}"
+                "content": f"Summarize the following text in 2-3 sentences, do not write summarize:... etc, just text:\n\n{text}"
             }
         ]
     )
     return message.content[0].text.strip()
 
 
-
+async def analyze_sentiment(text: str) -> str:
+    message = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=10,
+        messages=[
+            {
+                "role": "user",
+                "content": f"Analyze the sentiment of this text. Reply with only one word: positive, negative, or neutral.\n\n{text}"
+            }
+        ]
+    )
+    return message.content[0].text.strip().lower()
 
