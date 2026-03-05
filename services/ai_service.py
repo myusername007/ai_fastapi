@@ -34,3 +34,17 @@ async def analyze_sentiment(text: str) -> str:
     )
     return message.content[0].text.strip().lower()
 
+
+async def ask_question(text: str, question: str) -> str:
+    message = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=512,
+        system="You are a helpful assistant. Answer questions based only on the provided text. If the answer is not in the text, say so.",
+        messages=[
+            {
+                "role": "user",
+                "content": f"Text:\n{text}\n\nQuestion: {question}"
+            }
+        ]
+    )
+    return message.content[0].text

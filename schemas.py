@@ -11,3 +11,10 @@ class SentimentRequest(BaseModel):
 
 class SentimentResponse(BaseModel):
     sentiment: str
+
+class AskRequest(BaseModel):
+    text: str
+    question: str
+
+class AskResponse(BaseModel):
+    answer: str
