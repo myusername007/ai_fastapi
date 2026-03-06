@@ -48,3 +48,16 @@ async def ask_question(text: str, question: str) -> str:
         ]
     )
     return message.content[0].text
+
+async def chat(text: str, messages: list) -> str:
+    messages_with_context = messages.copy()
+    messages_with_context[0]["content"] = (
+        f"Document:\n{text}\n\n{messages_with_context[0]['content']}"
+    )
+    message = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=512,
+        system="Answer questions based only on the provided document.",
+        messages=messages_with_context
+    )
+    return message.content[0].text

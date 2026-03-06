@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class SummarizeRequest(BaseModel):
     text: str
@@ -18,3 +19,15 @@ class AskRequest(BaseModel):
 
 class AskResponse(BaseModel):
     answer: str
+
+class Message(BaseModel):
+    role: str #"user" or "assistant"
+    content: str
+
+class ChatRequest(BaseModel):
+    text: str 
+    messages: List[Message] #history
+
+class ChatResponse(BaseModel):
+    answer: str
+    messages: List[Message] #updated history
