@@ -1,6 +1,23 @@
 from fastapi import FastAPI, HTTPException
-from services.ai_service import summarize_text, analyze_sentiment, ask_question, chat
-from schemas import SummarizeRequest, SummarizeResponse, SentimentRequest, SentimentResponse, AskRequest, AskResponse, Message, ChatRequest, ChatResponse
+from services.ai_service import (
+    summarize_text, 
+    analyze_sentiment, 
+    ask_question, chat, 
+    session_chat
+)
+from schemas import (
+    SummarizeRequest, 
+    SummarizeResponse, 
+    SentimentRequest, 
+    SentimentResponse, 
+    AskRequest, 
+    AskResponse, 
+    Message, 
+    ChatRequest, 
+    ChatResponse,
+    SessionChatRequest,
+    SessionChatResponse
+)
 
 app = FastAPI()
 
@@ -46,4 +63,19 @@ async def chat_endpoint(request: ChatRequest):
         Message(role="assistant", content=response)
     ]
     return ChatResponse(answer=response, messages=updated_messages)
+
+@app.post("/session-chat", response_model=SessionChatResponse)
+async def session_chat_end(request: SessionChatRequest):
+    session_id, answer = await session_chat(
+        session_id=request.session_id,
+        text=request.text,
+        message=request.message
+    )
+    if not answer:
+        raise HTTPException(
+            status_code=404,
+            detail="Response not found"
+        )
+    
+    return SessionChatResponse(session_id=session_id, answer=answer)
 

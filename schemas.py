@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List
+import uuid
 
 class SummarizeRequest(BaseModel):
     text: str
@@ -31,3 +32,12 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     messages: List[Message] #updated history
+
+class SessionChatRequest(BaseModel):
+    session_id: str = ""
+    text: str
+    message: str #only new message
+
+class SessionChatResponse(BaseModel):
+    session_id: str
+    answer: str
