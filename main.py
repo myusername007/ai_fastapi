@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+import anthropic
 from services.ai_service import (
     summarize_text, 
     analyze_sentiment, 
     ask_question, chat, 
     session_chat
 )
+from services.ai_service import client
+
 from schemas import (
     SummarizeRequest, 
     SummarizeResponse, 
@@ -18,6 +22,8 @@ from schemas import (
     SessionChatRequest,
     SessionChatResponse
 )
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 
@@ -78,4 +84,38 @@ async def session_chat_end(request: SessionChatRequest):
         )
     
     return SessionChatResponse(session_id=session_id, answer=answer)
+
+@app.post("/stream")
+async def stream_response(request: SummarizeRequest):
+    def generate():
+        with client.messages.stream(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=512,
+            messages=[
+                {"role": "user", "content": request.text}
+            ]
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
+    return StreamingResponse(generate(), media_type="text/plain")
+
+
+@app.post("/stream-summary")
+async def stream_summary_response(request: SummarizeRequest):
+    def generate():
+        with client.messages.stream(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=512,
+            system="You are a helpful assistant. Summarize the provided text concisely.",
+            messages=[
+                {"role": "user", "content": request.text}
+            ]
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
+    return StreamingResponse(generate(), media_type="text/plain")
+
+
 
