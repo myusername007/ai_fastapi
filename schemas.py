@@ -41,3 +41,16 @@ class SessionChatRequest(BaseModel):
 class SessionChatResponse(BaseModel):
     session_id: str
     answer: str
+
+class AnalyzeRequest(BaseModel):
+    text: str
+
+class TextAnalysis(BaseModel):
+    sentiment: str
+    summary: str
+    key_topics: list[str]
+
+class AnalyzeResponse(BaseModel):
+    analysis: TextAnalysis
+
+    
