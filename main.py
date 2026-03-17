@@ -5,7 +5,8 @@ from services.ai_service import (
     summarize_text, 
     analyze_sentiment, 
     ask_question, chat, 
-    session_chat
+    session_chat,
+    analyze_text
 )
 from services.ai_service import client
 
@@ -20,7 +21,10 @@ from schemas import (
     ChatRequest, 
     ChatResponse,
     SessionChatRequest,
-    SessionChatResponse
+    SessionChatResponse,
+    AnalyzeResponse,
+    AnalyzeRequest,
+    TextAnalysis
 )
 from dotenv import load_dotenv
 load_dotenv()
@@ -117,5 +121,14 @@ async def stream_summary_response(request: SummarizeRequest):
 
     return StreamingResponse(generate(), media_type="text/plain")
 
+@app.post("/analyze", response_model=AnalyzeResponse)
+async def analyze(request: AnalyzeRequest):
+    response = await analyze_text(text = request.text)
+    if not response:
+        raise HTTPException(
+            status_code=404,
+            detail="Response not found"
+        )
+    return AnalyzeResponse(analysis=response)
 
 
