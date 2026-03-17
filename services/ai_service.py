@@ -97,3 +97,38 @@ async def session_chat(session_id: str, text: str, message: str ) -> tuple[str, 
     await redis_client.set(f"chat:{session_id}", json.dumps(history), ex=3600)
 
     return session_id, answer
+
+
+async def analyze_text(text: str) -> dict:
+    extract_tool = {
+    "name": "extract_info",
+    "description": "Extract structured information from text",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "sentiment": {
+                "type": "string",
+                "enum": ["positive", "negative", "neutral"]
+            },
+            "summary": {"type": "string"},
+            "key_topics": {
+                "type": "array",
+                "items": {"type": "string"}
+            }
+        },
+        "required": ["sentiment", "summary", "key_topics"]
+    }
+    }
+
+    response = client.messages.create(
+    model="claude-haiku-4-5-20251001",
+    max_tokens=512,
+    tools=[extract_tool],
+    tool_choice={"type": "tool", "name": "extract_info"},  # примусово викликати цей tool
+    messages=[{"role": "user", "content": text}]
+    )
+
+    # Результат завжди tool_use блок
+    tool_use = next(b for b in response.content if b.type == "tool_use")
+    result = tool_use.input  # це вже dict з валідним JSON
+    return result
